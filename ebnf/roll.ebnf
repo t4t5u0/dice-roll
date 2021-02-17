@@ -1,0 +1,32 @@
+# 終端文字 digit, cb
+
+non_zero_digit = '1' | .. | '9'
+digit = "0" | non_zero_digit
+uint = digit | non_zero_digit digit +
+int = addsub | uint
+addsub = "+" | "-"
+divmul = "*" | "/" | "%"
+pow = "^"
+bin_op = addsub | divmul | pow
+una_op = '@' | '$' | 'r'
+key = "k"
+droll = "d"
+broll = "b"
+ob = "("
+cb = ")"
+
+# 2項演算の繰り返し, 符号あり整数, カッコ
+bin_expr = 
+    (addsub uint) |
+    (uint bin_op uint)|
+    (ob expr cb)
+# 単項演算
+una_expr = (una_op uint) | ('$' int)
+
+tmp = ([bin_op bin_expr] [una_expr] [bin_op bin_expr])
+# 2d6@8
+dexpr = ((uint | bin_expr) droll (uint | bin_expr)) (tmp) *
+# k30@10$12+15
+kexpr = (key (uint | bin_expr)) (tmp) *
+# 3b6
+bexpr = ((uint | bin_expr) broll (uint | bin_expr))
