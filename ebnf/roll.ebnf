@@ -21,12 +21,76 @@ bin_expr =
     (uint bin_op uint)|
     (ob expr cb)
 # 単項演算
-una_expr = (una_op uint) | ('$' int)
+# una_expr = (una_op uint) | ('$' int)
+una_expr = 
+    ["$" (int | uint)]["@" uint]["r" uint]["k" uint]|
+    ["$" (int | uint)]["@" uint]["k" uint]["r" uint]|
+    ["$" (int | uint)]["r" uint]["@" uint]["k" uint]|
+    ["$" (int | uint)]["r" uint]["k" uint]["@" uint]|
+    ["$" (int | uint)]["k" uint]["@" uint]["r" uint]|
+    ["$" (int | uint)]["k" uint]["r" uint]["@" uint]|
+    ["@" uint]["$" (int | uint)]["r" uint]["k" uint]|
+    ["@" uint]["$" (int | uint)]["k" uint]["r" uint]|
+    ["@" uint]["r" uint]["$" (int | uint)]["k" uint]|
+    ["@" uint]["r" uint]["k" uint]["$" (int | uint)]|
+    ["@" uint]["k" uint]["$" (int | uint)]["r" uint]|
+    ["@" uint]["k" uint]["r" uint]["$" (int | uint)]|
+    ["r" uint]["$" (int | uint)]["@" uint]["k" uint]|
+    ["r" uint]["$" (int | uint)]["k" uint]["@" uint]|
+    ["r" uint]["@" uint]["$" (int | uint)]["k" uint]|
+    ["r" uint]["@" uint]["k" uint]["$" (int | uint)]|
+    ["r" uint]["k" uint]["$" (int | uint)]["@" uint]|
+    ["r" uint]["k" uint]["@" uint]["$" (int | uint)]|
+    ["k" uint]["$" (int | uint)]["@" uint]["r" uint]|
+    ["k" uint]["$" (int | uint)]["r" uint]["@" uint]|
+    ["k" uint]["@" uint]["$" (int | uint)]["r" uint]|
+    ["k" uint]["@" uint]["r" uint]["$" (int | uint)]|
+    ["k" uint]["r" uint]["$" (int | uint)]["@" uint]|
+    ["k" uint]["r" uint]["@" uint]["$" (int | uint)]
 
-tmp = ([bin_op bin_expr] [una_expr] [bin_op bin_expr])
+# tmp = ([bin_op bin_expr] [una_expr] [bin_op bin_expr])
+
+tmp = (bin_op bin_expr) 
+una_expr2 = 
+    ([tmp]["$" (int | uint)][tmp]["@" uint][tmp]["r" uint][tmp]["k" uint][tmp])|
+    ([tmp]["$" (int | uint)][tmp]["@" uint][tmp]["k" uint][tmp]["r" uint][tmp])|
+    ([tmp]["$" (int | uint)][tmp]["r" uint][tmp]["@" uint][tmp]["k" uint][tmp])|
+    ([tmp]["$" (int | uint)][tmp]["r" uint][tmp]["k" uint][tmp]["@" uint][tmp])|
+    ([tmp]["$" (int | uint)][tmp]["k" uint][tmp]["@" uint][tmp]["r" uint][tmp])|
+    ([tmp]["$" (int | uint)][tmp]["k" uint][tmp]["r" uint][tmp]["@" uint][tmp])|
+    ([tmp]["@" uint][tmp]["$" (int | uint)][tmp]["r" uint][tmp]["k" uint][tmp])|
+    ([tmp]["@" uint][tmp]["$" (int | uint)][tmp]["k" uint][tmp]["r" uint][tmp])|
+    ([tmp]["@" uint][tmp]["r" uint][tmp]["$" (int | uint)][tmp]["k" uint][tmp])|
+    ([tmp]["@" uint][tmp]["r" uint][tmp]["k" uint][tmp]["$" (int | uint)][tmp])|
+    ([tmp]["@" uint][tmp]["k" uint][tmp]["$" (int | uint)][tmp]["r" uint][tmp])|
+    ([tmp]["@" uint][tmp]["k" uint][tmp]["r" uint][tmp]["$" (int | uint)][tmp])|
+    ([tmp]["r" uint][tmp]["$" (int | uint)][tmp]["@" uint][tmp]["k" uint][tmp])|
+    ([tmp]["r" uint][tmp]["$" (int | uint)][tmp]["k" uint][tmp]["@" uint][tmp])|
+    ([tmp]["r" uint][tmp]["@" uint][tmp]["$" (int | uint)][tmp]["k" uint][tmp])|
+    ([tmp]["r" uint][tmp]["@" uint][tmp]["k" uint][tmp]["$" (int | uint)][tmp])|
+    ([tmp]["r" uint][tmp]["k" uint][tmp]["$" (int | uint)][tmp]["@" uint][tmp])|
+    ([tmp]["r" uint][tmp]["k" uint][tmp]["@" uint][tmp]["$" (int | uint)][tmp])|
+    ([tmp]["k" uint][tmp]["$" (int | uint)][tmp]["@" uint][tmp]["r" uint][tmp])|
+    ([tmp]["k" uint][tmp]["$" (int | uint)][tmp]["r" uint][tmp]["@" uint][tmp])|
+    ([tmp]["k" uint][tmp]["@" uint][tmp]["$" (int | uint)][tmp]["r" uint][tmp])|
+    ([tmp]["k" uint][tmp]["@" uint][tmp]["r" uint][tmp]["$" (int | uint)][tmp])|
+    ([tmp]["k" uint][tmp]["r" uint][tmp]["$" (int | uint)][tmp]["@" uint][tmp])|
+    ([tmp]["k" uint][tmp]["r" uint][tmp]["@" uint][tmp]["$" (int | uint)][tmp])
+
+
+
+
 # 2d6@8
 dexpr = ((uint | bin_expr) droll (uint | bin_expr)) (tmp) *
 # k30@10$12+15
 kexpr = (key (uint | bin_expr)) (tmp) *
 # 3b6
 bexpr = ((uint | bin_expr) broll (uint | bin_expr))
+
+# 今の文法では、2d6$12$12 という文法を受理してしまう
+# これは不正な文法。これに対処するためには、una_exprを
+# それぞれ1つずつ定義し直すといける
+# しかし、2d6$12@10と2d6@10$12 を同時に受理する文法を思いつかない
+# [$][@][k][r] みたいなことすると順序固定される
+# [$][@][k][r] | [$][@][r][k] | [$][k][r][@] | [$][r][k][@] | [$][r][@][k] | [$][k][@][r]  
+# みたいな感じで、全列挙をしようかなぁ 
